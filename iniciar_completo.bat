@@ -9,7 +9,8 @@ echo ║      Iniciando todos os servicos...      ║
 echo ╚══════════════════════════════════════════╝
 echo.
 
-set ROOT=C:\Users\hunlock\Documents\LOJA\Agente_Sistemas\Arena IA - Claude Sonnet
+set ROOT=%~dp0
+if "%ROOT:~-1%"=="\" set ROOT=%ROOT:~0,-1%
 
 :: Verificar Ollama
 echo [1] Verificando Ollama...

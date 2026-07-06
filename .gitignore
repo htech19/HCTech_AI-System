@@ -1,11 +1,40 @@
+# Python / Backend
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Node / Frontend
 node_modules/
 .next/
 out/
+frontend/.next/
+
+# Ambiente
 .env
 .env.local
 .env*.local
+
+# Banco de dados local (SQLite)
+data/*.db
+data/*.db-journal
+
+# Backups e arquivos temporarios
+bkp/
+*.bak
+*.bak_*
+*_backup*
+
+# Logs
 *.log
+logs/
+
+# SO
 .DS_Store
 Thumbs.db
-next-env.d.ts
-.vercel
+
+# Editor
+.vscode/
+.idea/

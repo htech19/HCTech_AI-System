@@ -2,7 +2,7 @@
 # Execute: .\bootstrap.ps1
 
 $ErrorActionPreference = "Stop"
-$ProjectRoot = "C:\Users\hunlock\Documents\LOJA\Agente_Sistemas\Arena IA - Claude Sonnet"
+$ProjectRoot = $PSScriptRoot
 Set-Location $ProjectRoot
 
 Clear-Host
