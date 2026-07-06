@@ -21,7 +21,7 @@ frontend/.next/
 data/*.db
 data/*.db-journal
 
-# Backups e arquivos temporarios
+# Backups e temporarios
 bkp/
 *.bak
 *.bak_*
