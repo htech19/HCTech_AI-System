@@ -1,0 +1,57 @@
+"use client"
+import { useState, useEffect } from "react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { Toaster } from "react-hot-toast"
+import { useAppStore } from "@/store/useAppStore"
+import Sidebar from "@/components/layout/Sidebar"
+import Header from "@/components/layout/Header"
+import DashboardPage from "@/components/pages/DashboardPage"
+import AgentsPage from "@/components/pages/AgentsPage"
+import KanbanPage from "@/components/pages/KanbanPage"
+import SEOPage from "@/components/pages/SEOPage"
+import SocialPage from "@/components/pages/SocialPage"
+import MapsPage from "@/components/pages/MapsPage"
+import KnowledgePage from "@/components/pages/KnowledgePage"
+import ReportsPage from "@/components/pages/ReportsPage"
+import AutomationPage from "@/components/pages/AutomationPage"
+import SettingsPage from "@/components/pages/SettingsPage"
+import IntegrationsPage from "@/components/pages/IntegrationsPage"
+
+const qc = new QueryClient({ defaultOptions: { queries: { staleTime: 30000, retry: 1 } } })
+
+const pages: Record<string, React.ComponentType> = {
+  dashboard: DashboardPage, agents: AgentsPage, kanban: KanbanPage,
+  seo: SEOPage, social: SocialPage, maps: MapsPage,
+  knowledge: KnowledgePage, reports: ReportsPage,
+  automation: AutomationPage, settings: SettingsPage,
+  integrations: IntegrationsPage,
+}
+
+export default function App() {
+  return (
+    <QueryClientProvider client={qc}>
+      <Inner/>
+      <Toaster position="top-right" toastOptions={{
+        duration: 4000,
+        style: { background:"#1e293b", color:"#f1f5f9", border:"1px solid #334155" }
+      }}/>
+    </QueryClientProvider>
+  )
+}
+
+function Inner() {
+  const { currentPage, sidebarOpen } = useAppStore()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+  if (!mounted) return null
+  const Page = pages[currentPage] || DashboardPage
+  return (
+    <div className="flex h-screen overflow-hidden bg-slate-950 text-slate-50">
+      <Sidebar/>
+      <div className="flex-1 flex flex-col overflow-hidden" style={{ marginLeft: sidebarOpen ? 240 : 64, transition:"margin 0.3s" }}>
+        <Header/>
+        <main className="flex-1 overflow-auto p-6"><Page/></main>
+      </div>
+    </div>
+  )
+}

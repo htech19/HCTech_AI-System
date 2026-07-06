@@ -1,0 +1,42 @@
+# HC Tech AI System v2.1 - Requirements Corrigidos
+# Compatível com Python 3.12 + google-genai existente
+
+# ===== WEB FRAMEWORK =====
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.12
+
+# ===== BANCO DE DADOS =====
+sqlalchemy==2.0.36
+aiosqlite==0.20.0
+
+# ===== HTTP CLIENT (compatível com google-genai e telegram) =====
+httpx>=0.28.1,<1.0.0
+
+# ===== IA - OLLAMA =====
+# Usamos httpx direto (mais compatível)
+
+# ===== IA - OPENAI =====
+openai>=1.50.0
+
+# ===== IA - ANTHROPIC =====
+anthropic>=0.40.0
+
+# ===== CONFIG & AUTH =====
+python-dotenv==1.0.1
+pydantic>=2.9.0,<3.0.0
+pydantic-settings>=2.5.0
+
+# ===== UTILITÁRIOS =====
+aiofiles==24.1.0
+python-dateutil==2.9.0
+loguru==0.7.2
+
+# ===== WEBSOCKETS (compatível com telegram) =====
+websockets>=13.0,<17.0
+
+# ===== AGENDAMENTO =====
+apscheduler==3.10.4
+
+# ===== CACHE =====
+cachetools==5.5.0
