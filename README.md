@@ -10,7 +10,28 @@ Sistema de gestao com 5 agentes de IA para a HC Tech (assistencia tecnica de sma
 
 ## Arquitetura real
 
-
+- backend/ (API FastAPI, Python 3.12)
+  - app/main.py - Entry point, registra todas as rotas
+  - app/config.py - Settings (pydantic-settings, le .env)
+  - app/database.py - Modelos SQLAlchemy async + seed inicial dos agentes
+  - app/api/ - Um router por dominio (agents, seo, social, maps, knowledge, reports, metrics, automation, integrations, tasks, ai, auth)
+  - app/services/ai_service.py - Servico hibrido Ollama / OpenAI / Anthropic
+  - requirements.txt
+- frontend/ (Next.js 14 App Router + TypeScript)
+  - src/app/ - layout.tsx, page.tsx, globals.css
+  - src/components/layout/ - Sidebar, Header
+  - src/components/pages/ - DashboardPage, AgentsPage, SEOPage, SocialPage, MapsPage, KnowledgePage, ReportsPage, KanbanPage, AutomationPage, SettingsPage, IntegrationsPage
+  - src/lib/api.ts - Cliente HTTP para o backend
+  - src/store/useAppStore.ts - Estado global (Zustand)
+  - package.json
+- data/hctech.db - Banco SQLite (runtime, nao versionar)
+- scripts/ - Automacoes PowerShell auxiliares
+- skills/ - Skills de documentacao (integracoes, Ollama)
+- docs/ - Documentacao tecnica
+- iniciar.ps1 - Sobe Ollama + Backend + Frontend (auto-resolve path)
+- iniciar_completo.bat - Equivalente em .bat
+- setup.ps1 - Instala dependencias Python + Node + Ollama
+- bootstrap.ps1 - Recria a estrutura do projeto do zero (uso raro)
 
 ## Stack real
 
