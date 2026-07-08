@@ -44,6 +44,7 @@ class Agent(Base):
     color: Mapped[str] = mapped_column(String(50), default="blue")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     ai_provider: Mapped[str] = mapped_column(String(20), default="ollama")
+    model: Mapped[str] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     conversations: Mapped[list["Conversation"]] = relationship(back_populates="agent", cascade="all, delete-orphan")
     tasks: Mapped[list["Task"]] = relationship(back_populates="agent")

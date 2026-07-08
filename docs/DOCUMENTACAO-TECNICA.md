@@ -54,6 +54,13 @@ Cada agente é uma linha na tabela `Agent`, com os campos:
 | `color` | str | Cor de destaque na UI |
 | `is_active` | bool | Se o agente aparece habilitado |
 | `ai_provider` | str | `ollama` \| `openai` \| `anthropic` |
+| `model` | str \| null | Modelo especifico do agente (ex: `qwen2.5-coder:7b`). Se `null`, usa o `OLLAMA_MODEL` global do `.env` |
+
+**Modelo por agente (desde a auditoria de validação funcional):** agentes com tarefas mais exigentes
+(ex: HC-CODE) podem usar um modelo Ollama mais forte que os demais, sem afetar o resto do sistema —
+basta definir o campo `model` no PATCH. Se `model` for `null`, o agente usa o `OLLAMA_MODEL` global
+do `.env` (padrão leve, ex: `llama3.2:3b`). Isso resolveu um problema real detectado em produção:
+modelos pequenos (3B) tendiam a não seguir instruções negativas complexas do `system_prompt`.
 
 **Importante:** não existe `ollama create` nem Modelfile custom no fluxo real do sistema. O comportamento do agente é 100% definido pelo campo `system_prompt`, injetado em runtime pelo `ai_service.py` a cada chamada — trocar a "personalidade" de um agente é uma atualização de banco de dados, não de modelo.
 
@@ -115,4 +122,6 @@ O sistema hoje roda 100% local (SQLite, sem autenticação real habilitada por p
 | `setup.ps1` | Instala dependências assumindo pré-requisitos (Python/Node/Ollama) já presentes |
 | `iniciar.ps1` / `iniciar_completo.bat` | Sobe Ollama + Backend + Frontend, path auto-resolvido |
 | `bootstrap.ps1` | Recria a estrutura do projeto do zero (uso raro, manutenção) |
-| `scripts/treinar_agentes_hctech.py` | Aplica os system prompts especializados no negócio real via API |
+| `scripts/treinar_agentes_hctech.py` | Aplica os system prompts especializados (e o modelo por agente) via API |
+| `scripts/migrar_model_agentes.py` | Migração idempotente que adiciona a coluna `model` no banco existente |
+| `scripts/validar_agentes_hctech.py` | Valida de verdade: confere `system_prompt`, `model` salvos e testa uma chamada real de chat por agente |

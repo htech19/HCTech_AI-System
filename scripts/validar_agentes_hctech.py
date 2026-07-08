@@ -21,8 +21,25 @@ import textwrap
 import httpx
 
 
-# Palavra-chave minima esperada no system_prompt salvo (confirma que o treinamento pegou)
-MARCADOR_TREINAMENTO = "HC Tech InfoCell"
+# Palavra-chave minima esperada no system_prompt salvo, por agente.
+# HC-CODE nao recebe o contexto de negocio (nao e agente voltado ao cliente final),
+# entao seu marcador de validacao e diferente dos demais.
+MARCADOR_POR_AGENTE = {
+    "hc-ceo": "HC Tech InfoCell",
+    "hc-seo": "HC Tech InfoCell",
+    "hc-social": "HC Tech InfoCell",
+    "hc-content": "HC Tech InfoCell",
+    "hc-code": "HC-CODE",
+}
+
+# Modelo esperado por agente apos o treinamento (None = deve usar o global do .env)
+MODELO_ESPERADO_POR_AGENTE = {
+    "hc-ceo": None,
+    "hc-seo": None,
+    "hc-social": None,
+    "hc-content": None,
+    "hc-code": "qwen2.5-coder:7b",
+}
 
 # Uma pergunta de teste real por agente + palavras que a resposta deveria
 # provavelmente conter se o agente estiver usando o contexto de negocio real.
@@ -51,16 +68,36 @@ TESTES = {
 
 
 def validar_prompt_salvo(client: httpx.Client, api_url: str, agent_id: str) -> tuple[bool, str]:
+    marcador = MARCADOR_POR_AGENTE.get(agent_id, "HC Tech InfoCell")
+    modelo_esperado = MODELO_ESPERADO_POR_AGENTE.get(agent_id)
+
     try:
         resp = client.get(f"{api_url}/api/agents/{agent_id}")
         if resp.status_code != 200:
             return False, f"GET /api/agents/{agent_id} retornou {resp.status_code}"
         dados = resp.json()
         prompt = dados.get("system_prompt", "") or ""
-        if MARCADOR_TREINAMENTO in prompt:
-            return True, f"system_prompt contem '{MARCADOR_TREINAMENTO}' ({len(prompt)} chars)"
+        model_salvo = dados.get("model")
+
+        partes = []
+        ok = True
+
+        if marcador in prompt:
+            partes.append(f"system_prompt contem '{marcador}' ({len(prompt)} chars)")
         else:
-            return False, f"system_prompt NAO contem '{MARCADOR_TREINAMENTO}' - treinamento pode nao ter sido aplicado"
+            ok = False
+            partes.append(f"system_prompt NAO contem '{marcador}' - treinamento pode nao ter sido aplicado")
+
+        if modelo_esperado:
+            if model_salvo == modelo_esperado:
+                partes.append(f"model = '{model_salvo}' (correto)")
+            else:
+                ok = False
+                partes.append(f"model = '{model_salvo}' (esperado: '{modelo_esperado}') - rode migrar_model_agentes.py + treinar_agentes_hctech.py")
+        else:
+            partes.append(f"model = '{model_salvo or 'null (usa OLLAMA_MODEL global)'}'")
+
+        return ok, " | ".join(partes)
     except httpx.RequestError as e:
         return False, f"falha de conexao: {e}"
 

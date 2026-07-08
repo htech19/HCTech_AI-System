@@ -14,7 +14,7 @@ async def list_agents():
         agents = r.scalars().all()
         return [{"id": a.id, "name": a.name, "role": a.role, "description": a.description,
                  "system_prompt": a.system_prompt, "avatar": a.avatar, "color": a.color,
-                 "is_active": a.is_active, "ai_provider": a.ai_provider} for a in agents]
+                 "is_active": a.is_active, "ai_provider": a.ai_provider, "model": a.model} for a in agents]
 
 @router.get("/{agent_id}")
 async def get_agent(agent_id: str):
@@ -25,7 +25,7 @@ async def get_agent(agent_id: str):
             raise HTTPException(404, "Agente não encontrado")
         return {"id": a.id, "name": a.name, "role": a.role, "description": a.description,
                 "system_prompt": a.system_prompt, "avatar": a.avatar, "color": a.color,
-                "is_active": a.is_active, "ai_provider": a.ai_provider}
+                "is_active": a.is_active, "ai_provider": a.ai_provider, "model": a.model}
 
 @router.get("/{agent_id}/history")
 async def get_history(agent_id: str, limit: int = 50):
@@ -48,6 +48,7 @@ class AgentUpdate(BaseModel):
     system_prompt: Optional[str] = None
     ai_provider: Optional[str] = None
     is_active: Optional[bool] = None
+    model: Optional[str] = None
 
 @router.patch("/{agent_id}")
 async def update_agent(agent_id: str, data: AgentUpdate):
@@ -62,5 +63,7 @@ async def update_agent(agent_id: str, data: AgentUpdate):
             a.ai_provider = data.ai_provider
         if data.is_active is not None:
             a.is_active = data.is_active
+        if data.model is not None:
+            a.model = data.model
         await s.commit()
         return {"message": "Agente atualizado"}

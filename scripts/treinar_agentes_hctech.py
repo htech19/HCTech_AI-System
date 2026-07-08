@@ -30,6 +30,18 @@ DADOS REAIS DO NEGOCIO (use sempre que gerar conteudo/analise):
 - Publico: consumidor final e pequeno varejista da regiao do ABC Paulista
 """
 
+MODELO_POR_AGENTE = {
+    # HC-CODE precisa de raciocinio tecnico mais forte para seguir regras
+    # complexas (ex: nao sugerir edicao de Modelfile) - modelo especializado em codigo.
+    "hc-code": "qwen2.5-coder:7b",
+    # Demais agentes usam o OLLAMA_MODEL global do .env (deixar None aqui
+    # significa nao sobrescrever - troque se quiser fixar um modelo especifico).
+    "hc-ceo": None,
+    "hc-seo": None,
+    "hc-social": None,
+    "hc-content": None,
+}
+
 AGENTES_TREINAMENTO = {
     "hc-ceo": f"""
 Voce e o HC-CEO, agente coordenador estrategico do HC Tech AI System.
@@ -129,13 +141,20 @@ def treinar(api_url: str, dry_run: bool = False) -> int:
             print(f"[{datetime.now().strftime('%H:%M:%S')}] Agente: {agent_id}")
 
             if dry_run:
-                print(f"  (dry-run) system_prompt teria {len(prompt_limpo)} caracteres")
+                modelo_info = MODELO_POR_AGENTE.get(agent_id) or "(modelo global do .env)"
+                print(f"  (dry-run) system_prompt teria {len(prompt_limpo)} caracteres, model={modelo_info}")
                 continue
+
+            payload = {"system_prompt": prompt_limpo}
+            modelo = MODELO_POR_AGENTE.get(agent_id)
+            if modelo:
+                payload["model"] = modelo
+                print(f"  Modelo especifico definido: {modelo}")
 
             try:
                 resp = client.patch(
                     f"{api_url}/api/agents/{agent_id}",
-                    json={"system_prompt": prompt_limpo},
+                    json=payload,
                 )
                 if resp.status_code == 200:
                     print(f"  OK - treinamento aplicado")

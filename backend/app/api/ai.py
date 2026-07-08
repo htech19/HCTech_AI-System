@@ -43,6 +43,23 @@ async def _get_agent_prompt(agent_id: str) -> Optional[str]:
         return None
 
 
+async def _get_agent_model(agent_id: str) -> Optional[str]:
+    """Buscar modelo especifico do agente no banco (fallback para OLLAMA_MODEL global se None)"""
+    if not agent_id:
+        return None
+    try:
+        async with AsyncSessionLocal() as session:
+            from sqlalchemy import select
+            result = await session.execute(
+                select(Agent).where(Agent.id == agent_id)
+            )
+            agent = result.scalar_one_or_none()
+            return agent.model if agent else None
+    except Exception as e:
+        logger.error(f"Erro ao buscar modelo do agente {agent_id}: {e}")
+        return None
+
+
 async def _save_conversation(agent_id: str, user_msg: str, assistant_msg: str, provider: str):
     """Salvar conversa no banco"""
     try:
@@ -79,12 +96,14 @@ async def chat(req: ChatRequest):
     """Chat com IA (nao-streaming)"""
     provider = req.provider or "ollama"
     system_prompt = await _get_agent_prompt(req.agent_id)
+    model = await _get_agent_model(req.agent_id)
 
     try:
         response = await ai_service.chat(
             messages=req.messages,
             provider=provider,
             system_prompt=system_prompt,
+            model=model,
             temperature=req.temperature,
             max_tokens=req.max_tokens,
             stream=False,
@@ -111,6 +130,7 @@ async def chat_stream(req: ChatRequest):
     """Chat com streaming SSE"""
     provider = req.provider or "ollama"
     system_prompt = await _get_agent_prompt(req.agent_id)
+    model = await _get_agent_model(req.agent_id)
 
     async def generate():
         full_response = ""
@@ -123,6 +143,7 @@ async def chat_stream(req: ChatRequest):
                 messages=req.messages,
                 provider=provider,
                 system_prompt=system_prompt,
+                model=model,
                 temperature=req.temperature,
                 max_tokens=req.max_tokens,
                 stream=True,
@@ -163,12 +184,14 @@ async def quick_chat(req: QuickRequest):
     """Chat rapido com prompt simples"""
     provider = req.provider or "ollama"
     system_prompt = await _get_agent_prompt(req.agent_id)
+    model = await _get_agent_model(req.agent_id)
 
     try:
         response = await ai_service.chat(
             messages=[{"role": "user", "content": req.prompt}],
             provider=provider,
             system_prompt=system_prompt,
+            model=model,
             stream=False,
         )
         return {"response": response, "provider": provider}

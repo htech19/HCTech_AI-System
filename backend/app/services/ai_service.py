@@ -115,6 +115,7 @@ class AIService:
         messages: list,
         provider: str = None,
         system_prompt: str = None,
+        model: str = None,
         temperature: float = 0.7,
         max_tokens: int = 2000,
         stream: bool = False,
@@ -127,20 +128,20 @@ class AIService:
             messages = [{"role": "system", "content": system_prompt}] + messages
 
         if stream:
-            return self._stream(messages, p, temperature, max_tokens)
-        return await self._complete(messages, p, temperature, max_tokens)
+            return self._stream(messages, p, temperature, max_tokens, model)
+        return await self._complete(messages, p, temperature, max_tokens, model)
 
-    async def _complete(self, messages, provider, temperature, max_tokens) -> str:
+    async def _complete(self, messages, provider, temperature, max_tokens, model=None) -> str:
         """Chat nao-streaming"""
         try:
             if provider == "ollama":
-                return await self._ollama_chat(messages, temperature, max_tokens)
+                return await self._ollama_chat(messages, temperature, max_tokens, model)
             elif provider == "openai":
                 return await self._openai_chat(messages, temperature, max_tokens)
             elif provider == "anthropic":
                 return await self._anthropic_chat(messages, temperature, max_tokens)
             else:
-                return await self._ollama_chat(messages, temperature, max_tokens)
+                return await self._ollama_chat(messages, temperature, max_tokens, model)
         except Exception as e:
             logger.error(f"Erro {provider}: {e}")
             # Fallback para Ollama
@@ -148,14 +149,14 @@ class AIService:
                 ollama_ok = await self.check_ollama()
                 if ollama_ok:
                     logger.info("Fallback para Ollama...")
-                    return await self._ollama_chat(messages, temperature, max_tokens)
+                    return await self._ollama_chat(messages, temperature, max_tokens, model)
             raise
 
-    async def _stream(self, messages, provider, temperature, max_tokens):
+    async def _stream(self, messages, provider, temperature, max_tokens, model=None):
         """Chat com streaming"""
         try:
             if provider == "ollama":
-                async for chunk in self._ollama_stream(messages, temperature, max_tokens):
+                async for chunk in self._ollama_stream(messages, temperature, max_tokens, model):
                     yield chunk
             elif provider == "openai":
                 async for chunk in self._openai_stream(messages, temperature, max_tokens):
@@ -164,7 +165,7 @@ class AIService:
                 async for chunk in self._anthropic_stream(messages, temperature, max_tokens):
                     yield chunk
             else:
-                async for chunk in self._ollama_stream(messages, temperature, max_tokens):
+                async for chunk in self._ollama_stream(messages, temperature, max_tokens, model):
                     yield chunk
         except Exception as e:
             logger.error(f"Stream erro {provider}: {e}")
@@ -172,14 +173,14 @@ class AIService:
 
     # ===== OLLAMA =====
 
-    async def _ollama_chat(self, messages, temperature, max_tokens) -> str:
+    async def _ollama_chat(self, messages, temperature, max_tokens, model=None) -> str:
         """Ollama nao-streaming"""
         timeout = httpx.Timeout(OLLAMA_TIMEOUT, connect=10.0)
         async with httpx.AsyncClient(timeout=timeout) as c:
             r = await c.post(
                 f"{OLLAMA_URL}/api/chat",
                 json={
-                    "model": OLLAMA_MODEL,
+                    "model": model or OLLAMA_MODEL,
                     "messages": messages,
                     "stream": False,
                     "options": {
@@ -191,7 +192,7 @@ class AIService:
             r.raise_for_status()
             return r.json()["message"]["content"]
 
-    async def _ollama_stream(self, messages, temperature, max_tokens):
+    async def _ollama_stream(self, messages, temperature, max_tokens, model=None):
         """Ollama streaming"""
         timeout = httpx.Timeout(OLLAMA_TIMEOUT, connect=10.0)
         async with httpx.AsyncClient(timeout=timeout) as c:
@@ -199,7 +200,7 @@ class AIService:
                 "POST",
                 f"{OLLAMA_URL}/api/chat",
                 json={
-                    "model": OLLAMA_MODEL,
+                    "model": model or OLLAMA_MODEL,
                     "messages": messages,
                     "stream": True,
                     "options": {
