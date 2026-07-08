@@ -1,139 +1,150 @@
-# HC Tech AI System v2.1
+<div align="center">
 
-> Plataforma Hibrida Local/Online de IA para Assistencias Tecnicas
+# 🤖 HC TECH AI SYSTEM
+### `v2.1` — Plataforma Híbrida de Inteligência Artificial para Assistência Técnica
 
-Sistema de gestao com 5 agentes de IA para a HC Tech (assistencia tecnica de smartphones), com backend em FastAPI/Python e frontend em Next.js, suportando IA local (Ollama) ou em nuvem (OpenAI/Anthropic) por agente.
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Next.js](https://img.shields.io/badge/Next.js-14.2-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
+[![Ollama](https://img.shields.io/badge/Ollama-IA_Local-FF6B00?style=for-the-badge&logo=ollama&logoColor=white)](https://ollama.ai)
+[![License](https://img.shields.io/badge/Licença-Proprietária-red?style=for-the-badge)](LICENSE)
 
-**Repositorio:** https://github.com/htech19/HCTech_AI-System
+**5 agentes de IA autônomos. IA local ou em nuvem. Zero dependência obrigatória de API paga.**
+
+[🚀 Instalação Rápida](#-instalação-rápida) · [🧠 Os Agentes](#-os-5-agentes) · [🏗️ Arquitetura](#️-arquitetura) · [📡 API](#-módulos-da-api) · [🔧 Manutenção](#-scripts-do-projeto)
+
+</div>
 
 ---
 
-## Arquitetura real
+## ⚡ O que é isso
 
-- backend/ (API FastAPI, Python 3.12)
-  - app/main.py - Entry point, registra todas as rotas
-  - app/config.py - Settings (pydantic-settings, le .env)
-  - app/database.py - Modelos SQLAlchemy async + seed inicial dos agentes
-  - app/api/ - Um router por dominio (agents, seo, social, maps, knowledge, reports, metrics, automation, integrations, tasks, ai, auth)
-  - app/services/ai_service.py - Servico hibrido Ollama / OpenAI / Anthropic
-  - requirements.txt
-- frontend/ (Next.js 14 App Router + TypeScript)
-  - src/app/ - layout.tsx, page.tsx, globals.css
-  - src/components/layout/ - Sidebar, Header
-  - src/components/pages/ - DashboardPage, AgentsPage, SEOPage, SocialPage, MapsPage, KnowledgePage, ReportsPage, KanbanPage, AutomationPage, SettingsPage, IntegrationsPage
-  - src/lib/api.ts - Cliente HTTP para o backend
-  - src/store/useAppStore.ts - Estado global (Zustand)
-  - package.json
-- data/hctech.db - Banco SQLite (runtime, nao versionar)
-- scripts/ - Automacoes PowerShell auxiliares
-- skills/ - Skills de documentacao (integracoes, Ollama)
-- docs/ - Documentacao tecnica
-- iniciar.ps1 - Sobe Ollama + Backend + Frontend (auto-resolve path)
-- iniciar_completo.bat - Equivalente em .bat
-- setup.ps1 - Instala dependencias Python + Node + Ollama
-- bootstrap.ps1 - Recria a estrutura do projeto do zero (uso raro)
+Sistema de gestão com **inteligência artificial embarcada** rodando para a **HC Tech InfoCell** — assistência técnica de smartphones e notebooks no Grande ABC, São Bernardo do Campo/SP, desde 2011.
 
-## Stack real
+Backend em **FastAPI**, frontend em **Next.js 14**, e 5 agentes especializados que pensam com **Ollama local**, **OpenAI** ou **Anthropic** — trocando de provedor por agente, em tempo real, sem redeploy.
 
-| Camada | Tecnologia |
-|---|---|
-| Backend | FastAPI 0.115, Uvicorn, SQLAlchemy 2.0 (async), aiosqlite |
-| Frontend | Next.js 14.2.5 (App Router), React 18.3, TypeScript, Tailwind CSS |
-| Estado (frontend) | Zustand |
-| Dados remotos (frontend) | @tanstack/react-query, axios |
-| Banco de dados | SQLite (data/hctech.db) |
-| IA | Hibrida: Ollama (local, padrao) ou OpenAI ou Anthropic - por agente, via campo ai_provider |
-| Agendamento | APScheduler |
-| Logging | Loguru |
+> 🔗 Site real do negócio: [www.hctechinfocell.com.br](https://www.hctechinfocell.com.br)
+> 📦 Repositório: [github.com/htech19/HCTech_AI-System](https://github.com/htech19/HCTech_AI-System)
 
-## Os 5 agentes (dados reais, semeados em database.py)
+---
 
-| ID | Nome | Papel | Provedor padrao |
-|---|---|---|---|
-| hc-ceo | HC-CEO | Coordenador Estrategico | ollama |
-| hc-seo | HC-SEO | Especialista em SEO local / Google Maps | ollama |
-| hc-social | HC-SOCIAL | Gestor de Redes Sociais (Facebook/Instagram) | ollama |
-| hc-content | HC-CONTENT | Criador de Conteudo / Copywriting | ollama |
-| hc-code | HC-CODE | Desenvolvedor & Automacao | ollama |
+## 🧠 Os 5 Agentes
 
-Cada agente e uma linha no banco de dados, nao um modelo customizado do Ollama. O system_prompt e o ai_provider de cada um podem ser editados via PATCH /api/agents/{agent_id}, direto na tela de configuracoes do frontend. Nao e necessario `ollama create` para nenhum agente - o backend chama a API do Ollama (ou OpenAI/Anthropic) em runtime, injetando o system_prompt armazenado.
+Cada agente é um "funcionário digital" com personalidade, escopo e conhecimento próprios — armazenados no banco de dados, editáveis em tempo real, sem precisar treinar nenhum modelo.
 
-## Como rodar
+| | Agente | Missão |
+|---|---|---|
+| 🧭 | **HC-CEO** | Coordenador estratégico — decide qual agente entra em ação |
+| 🔍 | **HC-SEO** | SEO local, palavras-chave, Google Maps, Schema.org |
+| 📱 | **HC-SOCIAL** | Facebook & Instagram — posts, legendas, calendário editorial |
+| ✍️ | **HC-CONTENT** | Copywriting, blog, descrições de serviço |
+| 💻 | **HC-CODE** | Desenvolvimento e automação do próprio sistema |
 
-### Pre-requisitos
-- Python 3.12
-- Node.js + npm
-- Ollama instalado e com pelo menos um modelo baixado (padrao: llama3.2:3b)
+**Trocar a personalidade de um agente é uma chamada de API, não um retreinamento:**
+```bash
+curl -X PATCH http://localhost:8000/api/agents/hc-seo \
+  -H "Content-Type: application/json" \
+  -d '{"system_prompt": "novo comportamento aqui..."}'
+```
 
-### Subir tudo de uma vez
+---
+
+## 🏗️ Arquitetura
+
+```
++---------------------+      +----------------------+
+|   Next.js 14         |<---->|   FastAPI (Python)   |
+|   Frontend (:3000)   |      |   Backend (:8000)    |
++---------------------+      +----------+-----------+
+                                          |
+                          +---------------+---------------+
+                          v               v               v
+                    +----------+   +----------+   +--------------+
+                    |  Ollama   |   |  OpenAI  |   |  Anthropic    |
+                    |  (local)  |   |  (nuvem) |   |  (nuvem)      |
+                    +----------+   +----------+   +--------------+
+                          |
+                          v
+                 +------------------+
+                 |  SQLite (agentes, |
+                 |  conversas, dados) |
+                 +------------------+
+```
+
+<details>
+<summary><b>📁 Ver estrutura completa de pastas</b></summary>
+
+```
+backend/app/
+  main.py, config.py, database.py
+  api/        - um router por dominio (agents, seo, social, maps...)
+  services/   - ai_service.py (roteamento hibrido de IA)
+
+frontend/src/
+  app/            - App Router (layout, page, globals.css)
+  components/     - layout (Sidebar, Header) + pages (Dashboard, Agents, SEO...)
+  lib/api.ts      - cliente HTTP
+  store/          - estado global (Zustand)
+
+data/hctech.db    - banco SQLite (runtime)
+scripts/          - automacoes (instalador, treinamento, validacao)
+docs/             - documentacao tecnica completa
+```
+</details>
+
+**Stack:** FastAPI 0.115 · SQLAlchemy 2.0 (async) · aiosqlite · Next.js 14.2 · React 18.3 · TypeScript · Tailwind · Zustand · TanStack Query · APScheduler · Loguru
+
+---
+
+## 🚀 Instalação Rápida
+
+### Máquina zerada (Windows 10/11 25H2)
+```powershell
+powershell -ExecutionPolicy Bypass -File ".\scripts\Instalar-HCTechAI.ps1"
+```
+Ou clique duas vezes em **`scripts\Instalar-HCTechAI.bat`** — instala Git, Python, Node.js, Ollama (via `winget`), clona o projeto, instala tudo e configura o `.env` sozinho.
+
+### Ligar o sistema
 ```powershell
 .\iniciar_completo.bat
 ```
-Sobe, nesta ordem: Ollama -> Backend FastAPI (porta 8000) -> Frontend Next.js (porta 3000) -> abre o navegador.
+Sobe Ollama → Backend (`:8000`) → Frontend (`:3000`) → abre o navegador automaticamente.
 
-### Rodar manualmente (debug)
-```powershell
-# Terminal 1 - Backend
-cd backend
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-# Terminal 2 - Frontend
-cd frontend
-npm install
-npm run dev
-```
-
-### URLs
-| Servico | URL |
+| 🌐 Serviço | URL |
 |---|---|
-| Frontend | http://localhost:3000 |
+| Interface | http://localhost:3000 |
 | API | http://localhost:8000 |
-| Docs (Swagger) | http://localhost:8000/docs |
-| Health check | http://localhost:8000/api/health |
+| Docs interativos | http://localhost:8000/docs |
 | Ollama | http://localhost:11434 |
 
-## Configuracao (.env na raiz)
+---
 
-```env
-OLLAMA_API_URL=http://localhost:11434
-OLLAMA_MODEL=llama3.2:3b
-OLLAMA_TIMEOUT=120
+## 📡 Módulos da API
 
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4o-mini
+`auth` `ai` `agents` `tasks` `seo` `social` `maps` `knowledge` `reports` `metrics` `automation` `integrations`
 
-ANTHROPIC_API_KEY=
-ANTHROPIC_MODEL=claude-3-haiku-20240307
+Todos expostos sob `/api/*`, documentação interativa completa em `/docs` (Swagger UI gerado automaticamente pelo FastAPI).
 
-DEFAULT_AI_PROVIDER=ollama
+---
 
-DATABASE_URL=sqlite+aiosqlite:///./data/hctech.db
-SECRET_KEY=troque-em-producao
+## 🔧 Scripts do Projeto
 
-BACKEND_PORT=8000
-FRONTEND_PORT=3000
-```
+| Script | O que faz |
+|---|---|
+| `Instalar-HCTechAI.ps1` / `.bat` | Instalação completa em máquina limpa |
+| `Validar-Sync.ps1` | Compara local × GitHub (commits pendentes, arquivos não versionados) |
+| `Limpar-Repo.ps1` | Remove do Git o que nunca deveria estar versionado |
+| `treinar_agentes_hctech.py` | Aplica conhecimento real do negócio nos 5 agentes via API |
+| `iniciar.ps1` / `iniciar_completo.bat` | Sobe o sistema inteiro |
+| `setup.ps1` | Instala dependências (assume pré-requisitos já presentes) |
 
-## Modulos da API (backend/app/api/)
+📖 **Documentação técnica completa:** [`docs/DOCUMENTACAO-TECNICA.md`](docs/DOCUMENTACAO-TECNICA.md)
 
-| Router | Prefixo | Funcao |
-|---|---|---|
-| auth | /api/auth | Autenticacao |
-| ai | /api/ai | Chamadas diretas de IA |
-| agents | /api/agents | CRUD dos agentes e historico de conversas |
-| tasks | /api/tasks | Kanban de tarefas |
-| seo | /api/seo | Keywords e rankings |
-| social | /api/social | Posts de redes sociais |
-| maps | /api/maps | Google Maps / Business Profile |
-| knowledge | /api/knowledge | Base de conhecimento |
-| reports | /api/reports | Relatorios gerados |
-| metrics | /api/metrics | Metricas gerais |
-| automation | /api/automation | Jobs agendados (APScheduler) |
-| integrations | /api/integrations | Integracoes externas (Facebook, ML, Maps) |
+---
 
-## Convencoes do projeto
+<div align="center">
 
-- Scripts .ps1/.bat: resolucao de path dinamica ($PSScriptRoot / %~dp0), nunca caminho absoluto fixo.
-- Entrega de arquivos completos e prontos para uso.
-- Tema escuro como padrao (frontend usa bg-slate-950 como base).
-- Agentes: alteracoes de comportamento (system_prompt) via API/tela de configuracoes, nao via Modelfile do Ollama.
+**HC Tech InfoCell** · São Bernardo do Campo/SP · Grande ABC · MEI desde 2011
+Feito para rodar 100% local, sem depender de ninguém.
+
+</div>
