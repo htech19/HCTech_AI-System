@@ -48,9 +48,14 @@ async def lifespan(app: FastAPI):
     else:
         logger.warning("Ollama offline - Inicie com: ollama serve")
 
+    # Iniciar scheduler de automacao real
+    from app.services.scheduler_service import start_scheduler, stop_scheduler
+    await start_scheduler()
+
     logger.info("Sistema pronto! Docs: http://localhost:8000/docs")
     yield
 
+    await stop_scheduler()
     logger.info("Encerrando HC Tech AI System...")
 
 
